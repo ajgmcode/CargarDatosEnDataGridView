@@ -1,0 +1,101 @@
+'Carga los datos en el DataGridView
+    Private Sub CargarDatos()
+
+        'Variables
+        Dim Cell As DataGridViewTextBoxCell
+        Dim Row As DataGridViewRow
+        Dim Dt As DataTable
+
+        'Objeto de conexión hacia la base de datos
+        Using Cn As New SqlConnection("Server=.\SERVIDOR; Database=Tutoriales; user id=sa; Password=server2022; Integrated Security=True;")
+
+            'Capturador de Excepciones (Errores)
+            Try
+                'Abrir la conexión
+                Cn.Open()
+                Dt = New DataTable()
+
+                'Objeto de tipo SqlCommand
+                Using Sql As New SqlCommand("SELECT * FROM Personas ORDER BY Nombre", Cn) With {.CommandType = CommandType.Text}
+
+                    'Objeto de tipo SqlDataReader
+                    Using LeerSql As SqlDataReader = Sql.ExecuteReader()
+
+                        Dt.Load(LeerSql, LoadOption.Upsert)
+
+                        If Dt.Rows.Count > 0 Then
+
+                            'Limpiar las filas del DataGridView para que no se dupliquen los datos
+                            Me.Dgv_ListaPersonas.Rows.Clear()
+
+                            'Recorrer el DataTable y mostrar las filas de acuerdo al tamaño de la colección
+                            For Each Fila As DataRow In Dt.Rows
+
+                                'Nuevo objeto de tipo DataGridViewRow
+                                Row = New DataGridViewRow()
+
+                                'Agregar la celda IdPersona
+                                Cell = New DataGridViewTextBoxCell() With
+                                    {
+                                        .Value = Fila("IdPersona").ToString()
+                                    }
+                                Row.Cells.Add(Cell)
+
+                                'Agregar la celda IdFiscal
+                                Cell = New DataGridViewTextBoxCell() With
+                                {
+                                    .Value = Fila("IdFiscal").ToString()
+                                }
+                                Row.Cells.Add(Cell)
+
+                                'Agregar la celda Nombre
+                                Cell = New DataGridViewTextBoxCell() With
+                                {
+                                    .Value = Fila("Nombre").ToString()
+                                }
+                                Row.Cells.Add(Cell)
+
+                                'Agregar la celda Dirección
+                                Cell = New DataGridViewTextBoxCell() With
+                                {
+                                    .Value = Fila("Direccion").ToString()
+                                }
+                                Row.Cells.Add(Cell)
+
+                                'Agregar la celda Teléfono
+                                Cell = New DataGridViewTextBoxCell() With
+                                {
+                                    .Value = Fila("Telefono").ToString()
+                                }
+                                Row.Cells.Add(Cell)
+
+                                'Agregar la nueva fila al DataGridView
+                                Me.Dgv_ListaPersonas.Rows.Add(Row)
+
+                            Next
+
+                        Else
+
+                            'Limpiar las filas del DataGridView
+                            Me.Dgv_ListaPersonas.Rows.Clear()
+
+                            'En este caso se limpia el DataGridView pero tambien se puede emitir algún mensaje para informarle al usurio
+                            'que no se encontraron datos
+
+                        End If
+
+                    End Using
+
+                End Using
+
+            Catch Ex As Exception 'Si hay algún error
+
+                MessageBox.Show($"Error: {vbNewLine}{Ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+
+            Finally 'Paso lo que pase se cierra la conexión
+                Cn.Close()
+            End Try
+
+        End Using
+
+    End Sub

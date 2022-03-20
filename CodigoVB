@@ -1,0 +1,85 @@
+'Carga los datos en el DataGridView
+    Private Sub CargarDatos()
+
+        'Variables
+        Dim Cell As DataGridViewTextBoxCell
+        Dim Row As DataGridViewRow
+
+        'Objeto de conexión hacia la base de datos
+        Using Cn As New SqlConnection("Server=.\SERVIDOR; Database=Tutoriales; user id=sa; Password=server2022; Integrated Security=True;")
+
+            'Capturador de Excepciones (Errores)
+            Try
+                'Abrir la conexión
+                Cn.Open()
+
+                'Objeto de tipo SqlCommand
+                Using Sql As New SqlCommand("SELECT * FROM Personas ORDER BY Nombre", Cn) With {.CommandType = CommandType.Text}
+
+                    'Objeto de tipo SqlDataReader
+                    Using LeerSql As SqlDataReader = Sql.ExecuteReader()
+
+                        'Limpiar el DataGridView
+                        Me.Dgv_ListaPersonas.Rows.Clear()
+
+                        'Recorrer el objeto de tipo SqlDataReader
+                        While LeerSql.Read()
+
+                            'Nuevo objeto de tipo DataGridViewRow para agragar las celdas a la nueva fila
+                            Row = New DataGridViewRow()
+
+                            'Agregar celda IdPersona
+                            Cell = New DataGridViewTextBoxCell() With
+                            {
+                                .Value = LeerSql("IdPersona").ToString()
+                            }
+                            Row.Cells.Add(Cell)
+
+                            'Agregar celda IdFiscal
+                            Cell = New DataGridViewTextBoxCell() With
+                            {
+                                .Value = LeerSql("IdFiscal").ToString()
+                            }
+                            Row.Cells.Add(Cell)
+
+                            'Agregar celda Nombre
+                            Cell = New DataGridViewTextBoxCell() With
+                            {
+                                .Value = LeerSql("Nombre").ToString()
+                            }
+                            Row.Cells.Add(Cell)
+
+                            'Agregar celda Dirección
+                            Cell = New DataGridViewTextBoxCell() With
+                            {
+                                .Value = LeerSql("Direccion").ToString()
+                            }
+                            Row.Cells.Add(Cell)
+
+                            'Agregar celda Teléfono
+                            Cell = New DataGridViewTextBoxCell() With
+                            {
+                                .Value = LeerSql("Telefono").ToString()
+                            }
+                            Row.Cells.Add(Cell)
+
+                            'Agregar la nueva fila al DataGridView
+                            Me.Dgv_ListaPersonas.Rows.Add(Row)
+
+                        End While
+
+                    End Using
+
+                End Using
+
+            Catch Ex As Exception 'Si hay algún error
+
+                MessageBox.Show($"Error: {vbNewLine}{Ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+
+            Finally 'Pase lo que pase se cierra la conexión
+                Cn.Close()
+            End Try
+
+        End Using
+
+    End Sub
